@@ -74,6 +74,9 @@ export class NoteCommand extends Command {
       return;
     }
 
+    const endTimerTimestampMs =
+      Date.now() + durationInSeconds * 1000 - this.container.client.ws.ping * 2;
+
     const dm = interaction.options.getBoolean("dm");
 
     const cancelButton = new ButtonBuilder()
@@ -85,7 +88,7 @@ export class NoteCommand extends Command {
 
     const successReply = await interaction.reply({
       content: `I will remind you ${time(
-        Math.ceil(Date.now() / 1000) + durationInSeconds,
+        Math.round(endTimerTimestampMs / 1000),
         TimestampStyles.RelativeTime
       )} with the note: ${note}`,
       ephemeral: true,
@@ -119,13 +122,15 @@ export class NoteCommand extends Command {
           allowedMentions: { users: [interaction.user.id], roles: [] },
         });
       }
-    }, durationInSeconds * 1000);
+
+      await successReply.delete().catch(e => void e);
+    }, endTimerTimestampMs - Date.now());
 
     await successReply
       .awaitMessageComponent<ComponentType.Button>({
         filter: interaction => interaction.customId === "cancel",
         componentType: ComponentType.Button,
-        time: durationInSeconds * 1000,
+        time: endTimerTimestampMs - Date.now(),
       })
       .then(async interact => {
         clearTimeout(sendMessageTimeout);
@@ -133,14 +138,10 @@ export class NoteCommand extends Command {
           content: "The reminder has been cancelled!",
           ephemeral: true,
         });
-        await successReply.delete().catch();
+        await successReply.delete().catch(e => void e);
       })
-      .catch(async () => {
-        await successReply.delete().catch();
-      });
+      .catch(e => void e);
   }
-
-  exampleDurations = ["20s", "1m 30s", "10m", "30m", "1h", "1h 30m"];
 
   public override async autocompleteRun(interaction: AutocompleteInteraction) {
     if (interaction.options.getFocused(true).name !== "timer_duration") return;

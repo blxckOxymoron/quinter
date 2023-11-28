@@ -24,7 +24,14 @@ export function parseDuration(durationString: string): number {
   return duration;
 }
 
-const exampleAmounts = ["1m 30s", "10m", "30m", "1h", "1h 30m"];
+const exampleAmounts = [
+  "Input a custom duration, e. g. 2m20s",
+  "1m 30s",
+  "10m",
+  "30m",
+  "1h",
+  "1h 30m",
+];
 
 export function getDurationSuggestions(input: string): string[] {
   const formatted = input
