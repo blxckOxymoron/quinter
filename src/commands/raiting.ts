@@ -81,7 +81,7 @@ export class RatingCommand extends Command {
         },
       ])
       .setImage(
-        `https://ratingstars.azurewebsites.net/stars?sapce=10&count=5&scale=0.4&rate=${e.rating}`
+        `https://ratingstars.azurewebsites.net/stars?space=10&count=5&scale=0.4&rate=${e.rating}`
       )
       .setURL(encodeInURL(e));
   }

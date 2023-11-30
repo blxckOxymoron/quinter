@@ -78,7 +78,7 @@ export class AddReminderButtonHandler extends InteractionHandler {
       ])
       .setColor(QuinterColors.Green)
       .setImage(
-        `https://ratingstars.azurewebsites.net/stars?sapce=10&count=5&scale=0.3&rate=${r.rating}`
+        `https://ratingstars.azurewebsites.net/stars?space=10&count=5&scale=0.3&rate=${r.rating}`
       )
       .setTimestamp()
       .setURL(encodeInURL(r));
@@ -98,12 +98,12 @@ export class AddReminderButtonHandler extends InteractionHandler {
       const author = embed.fields.find(field => field.name === "Author")?.value;
       if (!author) return false;
 
-      return author === author.toString();
+      return author === interaction.user.toString();
     });
 
     if (preveousVote) {
       await interaction.reply({
-        content: `You have already voted: (https://discord.com/channels/${interaction.guildId}/${thread.id}/${preveousVote.id})`,
+        content: `You have already voted: (${preveousVote.url})`,
         ephemeral: true,
       });
       return;
@@ -150,7 +150,7 @@ export class AddReminderButtonHandler extends InteractionHandler {
     await thread.fetchStarterMessage().then(msg => msg?.edit({ embeds: [newEmbed] }));
 
     await modalInteraction.reply({
-      content: `Thank you for your rating!\nIt has been added to the thread (https://discord.com/channels/${interaction.guildId}/${thread.id}/${reviewMessage.id})`,
+      content: `Thank you for your rating!\nIt has been added to the thread (${reviewMessage.url})`,
       ephemeral: true,
     });
   }
