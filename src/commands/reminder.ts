@@ -12,16 +12,16 @@ import {
   User,
   time,
 } from "discord.js";
-import { getDurationSuggestions, parseDuration } from "../../util/durationInput";
-import { twemojiUrl } from "../../util/twemoji";
-import { QuinterColors } from "../../util/colors";
+import { getDurationSuggestions, parseDuration } from "../util/durationInput";
+import { twemojiUrl } from "../util/twemoji";
+import { QuinterColors } from "../util/colors";
 
 @ApplyOptions<Command.Options>({
   name: "reminder",
   description: "Get remided with a note in DM or chat",
   enabled: true,
 })
-export class NoteCommand extends Command {
+export class ReminderCommand extends Command {
   public override registerApplicationCommands(registry: Command.Registry) {
     registry.registerChatInputCommand(builder =>
       builder
@@ -58,11 +58,9 @@ export class NoteCommand extends Command {
     interaction: ChatInputCommandInteraction,
     _context: ChatInputCommand.RunContext
   ) {
-    const note = interaction.options.getString("note");
-    if (note === null) return;
+    const note = interaction.options.getString("note", true);
 
-    const duration = interaction.options.getString("timer_duration");
-    if (duration === null) return;
+    const duration = interaction.options.getString("timer_duration", true);
 
     const durationInSeconds = parseDuration(duration);
 
