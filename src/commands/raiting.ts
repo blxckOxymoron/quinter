@@ -52,6 +52,7 @@ export class RatingCommand extends Command {
 
   static createUpdatedEmbed(embed: Embed, rating: Rating) {
     const ratingEvent = decodeFromEmbedURL<RatingEvent>(embed);
+    if (!ratingEvent) throw Error("recived embed without rating event");
 
     ratingEvent.rating =
       (ratingEvent.rating * ratingEvent.votes + rating.rating) / (ratingEvent.votes + 1);
@@ -114,12 +115,9 @@ export class RatingCommand extends Command {
       fetchReply: true,
     });
 
-    const thread = await ratingOverview.startThread({
+    await ratingOverview.startThread({
       name: "Ratings",
       autoArchiveDuration: ThreadAutoArchiveDuration.ThreeDays,
     });
-
-    const starterMessageEmbed = await thread.fetchStarterMessage().then(msg => msg?.embeds[0]);
-    if (!starterMessageEmbed) throw Error("recived thread without starter message");
   }
 }

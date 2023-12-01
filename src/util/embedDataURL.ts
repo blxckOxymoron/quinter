@@ -7,8 +7,12 @@ export function encodeInURL(data: any) {
 
 export function decodeFromEmbedURL<T extends any>(embed: Embed) {
   const [, data] = embed.url?.split("#") ?? [];
-  if (!data) throw Error("recived embed without data");
+  if (!data) return undefined;
 
   const decoded = Buffer.from(data, "base64").toString("utf-8");
-  return JSON.parse(decoded) as T;
+  try {
+    return JSON.parse(decoded) as T;
+  } catch {
+    return undefined;
+  }
 }
