@@ -118,7 +118,7 @@ export class RatingCommand extends Command {
 
     await ratingOverview.startThread({
       name: "Ratings",
-      autoArchiveDuration: ThreadAutoArchiveDuration.ThreeDays,
+      autoArchiveDuration: ThreadAutoArchiveDuration.OneHour,
     });
   }
 }

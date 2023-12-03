@@ -83,7 +83,7 @@ export class GuessTheNumberCommand extends Command {
 
     await ratingOverview.startThread({
       name: "Guess the Number",
-      autoArchiveDuration: ThreadAutoArchiveDuration.ThreeDays,
+      autoArchiveDuration: ThreadAutoArchiveDuration.OneHour,
       rateLimitPerUser: 2,
     });
   }

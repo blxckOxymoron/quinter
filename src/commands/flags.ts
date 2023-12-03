@@ -54,7 +54,7 @@ export class FlagCommand extends Command {
 
     await ratingOverview.startThread({
       name: "Guess the Flag",
-      autoArchiveDuration: ThreadAutoArchiveDuration.ThreeDays,
+      autoArchiveDuration: ThreadAutoArchiveDuration.OneHour,
       rateLimitPerUser: 2,
     });
   }
