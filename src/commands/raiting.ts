@@ -32,6 +32,7 @@ export class RatingCommand extends Command {
   public override registerApplicationCommands(registry: Command.Registry) {
     registry.registerChatInputCommand(builder =>
       builder
+        .setDMPermission(false)
         .setName(this.name)
         .setDescription(this.description)
         .addStringOption(opt =>

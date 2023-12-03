@@ -1,6 +1,6 @@
 import { ApplyOptions } from "@sapphire/decorators";
 import { Listener } from "@sapphire/framework";
-import { EmbedBuilder, Events, Message, User } from "discord.js";
+import { EmbedBuilder, Events, Message, ThreadChannel, User } from "discord.js";
 import { decodeFromEmbedURL } from "../util/embedDataURL";
 import { FlagCommand, FlagGame } from "../commands/flags";
 import { QuinterColors } from "../util/colors";
@@ -11,7 +11,12 @@ import { getRandomCountry } from "../util/countryCodes";
   event: Events.MessageCreate,
 })
 export class GuessCountryListener extends Listener<Events.MessageCreate> {
-  static createCorrectGuessEmbed(game: FlagGame, guess: string, user: User) {
+  static createCorrectGuessEmbed(
+    game: FlagGame,
+    guess: string,
+    user: User,
+    channel: ThreadChannel
+  ) {
     return new EmbedBuilder()
       .setColor(QuinterColors.Green)
       .setAuthor({
@@ -20,7 +25,11 @@ export class GuessCountryListener extends Listener<Events.MessageCreate> {
       })
       .setDescription(
         `## ${user} guessed correctly!\n ## :flag_${game.countryCode.toLowerCase()}: ${guess}\n\nThe next flag is shown in the thread message`
-      );
+      )
+      .setTimestamp()
+      .setFooter({
+        text: `${channel.messageCount ?? 2 - 1} total guesses`,
+      });
   }
 
   override async run(message: Message) {
@@ -49,7 +58,14 @@ export class GuessCountryListener extends Listener<Events.MessageCreate> {
     await message.channel.bulkDelete(50);
 
     await message.channel.send({
-      embeds: [GuessCountryListener.createCorrectGuessEmbed(game, correctName, message.author)],
+      embeds: [
+        GuessCountryListener.createCorrectGuessEmbed(
+          game,
+          correctName,
+          message.author,
+          message.channel
+        ),
+      ],
     });
 
     await starterMessage.edit({

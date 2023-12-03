@@ -25,7 +25,7 @@ export type FlagGame = {
 export class FlagCommand extends Command {
   public override registerApplicationCommands(registry: Command.Registry) {
     registry.registerChatInputCommand(builder =>
-      builder.setName(this.name).setDescription(this.description)
+      builder.setDMPermission(false).setName(this.name).setDescription(this.description)
     );
   }
 
