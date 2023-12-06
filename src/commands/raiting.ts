@@ -12,8 +12,8 @@ import {
 } from "discord.js";
 import { twemojiUrl } from "../util/twemoji";
 import { QuinterColors } from "../util/colors";
-import { decodeFromEmbedURL, encodeInURL } from "../util/embedDataURL";
-import { Rating } from "../interaction-handlers/addReminderButton";
+import { decodeFromEmbedURL, encodeInURL } from "../util/encodeInURL";
+import { Rating } from "../interaction-handlers/addRatingButton";
 
 type RatingEvent = {
   title: string;

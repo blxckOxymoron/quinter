@@ -8,7 +8,7 @@ import {
 } from "discord.js";
 import { twemojiUrl } from "../util/twemoji";
 import { QuinterColors } from "../util/colors";
-import { encodeInURL } from "../util/embedDataURL";
+import { encodeInURL } from "../util/encodeInURL";
 import { Nullish } from "@sapphire/utilities";
 
 export type GuessTheNumberGame = {

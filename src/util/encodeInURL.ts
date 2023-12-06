@@ -1,6 +1,6 @@
 import { Embed } from "discord.js";
 
-export function encodeInURL(data: any) {
+export function encodeInURL<T>(data: T) {
   const encoded = Buffer.from(JSON.stringify(data)).toString("base64");
   return "https://github.com/blxckOxymoron/quinter#" + encoded;
 }

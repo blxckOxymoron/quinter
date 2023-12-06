@@ -1,7 +1,7 @@
 import { ApplyOptions } from "@sapphire/decorators";
 import { Listener } from "@sapphire/framework";
 import { EmbedBuilder, Events, Message, ThreadChannel, User } from "discord.js";
-import { decodeFromEmbedURL } from "../util/embedDataURL";
+import { decodeFromEmbedURL } from "../util/encodeInURL";
 import { QuinterColors } from "../util/colors";
 import { twemojiUrl } from "../util/twemoji";
 import { GuessTheNumberCommand, GuessTheNumberGame } from "../commands/guessTheNumber";

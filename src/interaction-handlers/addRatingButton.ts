@@ -12,7 +12,7 @@ import {
 } from "discord.js";
 import { twemojiUrl } from "../util/twemoji";
 import { QuinterColors } from "../util/colors";
-import { encodeInURL } from "../util/embedDataURL";
+import { encodeInURL } from "../util/encodeInURL";
 import { RatingCommand } from "../commands/raiting";
 
 export type Rating = {
@@ -23,11 +23,9 @@ export type Rating = {
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button,
 })
-export class AddReminderButtonHandler extends InteractionHandler {
+export class AddRatingButtonHandler extends InteractionHandler {
   public override parse(interaction: ButtonInteraction) {
-    if (interaction.customId !== "add_rating") return this.none();
-
-    return this.some();
+    return interaction.customId === "add_rating" ? this.some() : this.none();
   }
 
   static createModal() {
@@ -109,7 +107,7 @@ export class AddReminderButtonHandler extends InteractionHandler {
       return;
     }
 
-    await interaction.showModal(AddReminderButtonHandler.createModal());
+    await interaction.showModal(AddRatingButtonHandler.createModal());
 
     const modalInteraction = await interaction.awaitModalSubmit({
       time: 1000 * 60 * 5,
@@ -135,7 +133,7 @@ export class AddReminderButtonHandler extends InteractionHandler {
       review: modalInteraction.fields.getTextInputValue("rating_reveiw"),
     };
 
-    const reviewEmbed = AddReminderButtonHandler.createRatingEmbed(interaction.user, rating);
+    const reviewEmbed = AddRatingButtonHandler.createRatingEmbed(interaction.user, rating);
 
     const reviewMessage = await thread.send({ embeds: [reviewEmbed] });
 

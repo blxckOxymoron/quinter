@@ -1,12 +1,7 @@
 import { ApplyOptions } from "@sapphire/decorators";
 import { Command } from "@sapphire/framework";
-import { decodeFromEmbedURL } from "../util/embedDataURL";
+import { decodeFromEmbedURL } from "../util/encodeInURL";
 import { ApplicationCommandType } from "discord.js";
-
-export type FlagGame = {
-  countryCode: string;
-  countryNames: string[];
-};
 
 @ApplyOptions<Command.Options>({
   name: "showdata",
