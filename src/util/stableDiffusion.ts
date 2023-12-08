@@ -83,23 +83,32 @@ async function startGenerationLoop() {
   running = true;
 
   while (promptQuene.length > 0) {
-    const prompt = promptQuene.shift()!;
+    const quenedPrompt = promptQuene.shift()!;
 
-    const promptResult: PromptResult = {
+    const prompt: PromptResult = {
       enqueuedAt: 0,
-      ...prompt,
+      ...quenedPrompt,
       resultImagePaths: [],
       generatingStartedAt: 0,
       finishedAt: 0,
       hadError: false,
     };
 
-    await promptResult.interaction.followUp({
-      content: "Generating Image...",
+    await prompt.interaction.followUp({
+      content: `Started generating your image **${prompt.prompt}**...`,
       ephemeral: true,
     });
 
-    promptResult.generatingStartedAt = Date.now();
+    container.logger.info(
+      "generating image",
+      prompt.prompt,
+      "quene",
+      promptQuene.length,
+      "user quene",
+      Array.from(userPromptQuene.values()).reduce((acc, val) => acc + val.length, 0)
+    );
+
+    prompt.generatingStartedAt = Date.now();
 
     const { stderr: sdError } = await exec(
       `cd ${process.env.PATH_TO_FASTSDCPU} && source env/bin/activate && python3 src/app.py --use_openvino --prompt $PROMPT`,
@@ -107,20 +116,20 @@ async function startGenerationLoop() {
         timeout: 1000 * 60 * 5,
         env: {
           ...process.env,
-          PROMPT: promptResult.prompt,
+          PROMPT: prompt.prompt,
         },
         shell: "/bin/bash",
       }
     );
 
-    promptResult.finishedAt = Date.now();
+    prompt.finishedAt = Date.now();
 
-    if (sdError) container.logger.error("error in fastsdcpu", sdError);
+    if (sdError) container.logger.error("error in fastsdcpu");
 
-    const interactionResultDir = getDirForResult(promptResult.interaction);
+    const interactionResultDir = getDirForResult(prompt.interaction);
     await fs.mkdir(interactionResultDir, { recursive: true });
 
-    promptResult.resultImagePaths = [];
+    prompt.resultImagePaths = [];
 
     for (const file of await fs.readdir(path.join(process.env.PATH_TO_FASTSDCPU + "results"), {
       withFileTypes: true,
@@ -129,16 +138,15 @@ async function startGenerationLoop() {
       const newPath = path.join(interactionResultDir, "result" + file.name.substring(36));
       await fs.rename(path.join(process.env.PATH_TO_FASTSDCPU + "results", file.name), newPath);
 
-      if (file.name.endsWith(".png"))
-        promptResult.resultImagePaths.push(path.relative(".", newPath));
+      if (file.name.endsWith(".png")) prompt.resultImagePaths.push(path.relative(".", newPath));
     }
 
-    if (promptResult.resultImagePaths.length === 0) {
+    if (prompt.resultImagePaths.length === 0) {
       container.logger.error("no result images found");
-      promptResult.hadError = true;
+      prompt.hadError = true;
     }
 
-    await sendResult(promptResult);
+    await sendResult(prompt);
   }
 
   running = false;
