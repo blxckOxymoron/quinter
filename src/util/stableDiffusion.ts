@@ -49,12 +49,12 @@ export async function handleNewUserPrompt(interaction: RepliableInteraction, pro
 
   getUserQueue(userId).push(promptData);
 
-  checkAndEnqueNextForUser(userId);
-
   await interaction.reply({
     content: "Prompt enqueued. You will be notified when it's your turn.",
     ephemeral: true,
   });
+
+  checkAndEnqueNextForUser(userId);
 }
 
 function checkAndEnqueNextForUser(userId: string) {
