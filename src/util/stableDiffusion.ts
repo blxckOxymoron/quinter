@@ -50,7 +50,7 @@ export async function handleNewUserPrompt(interaction: RepliableInteraction, pro
   // initial reply will be edited later
   await interaction.reply({
     content: `Prompt **${prompt}** added to you personal queue. (current personal queue length: ${
-      userPromptQueue.get(userId)?.length ?? 0
+      (userPromptQueue.get(userId)?.length ?? 0) + 1
     })`,
     ephemeral: true,
   });
@@ -76,7 +76,9 @@ async function checkAndEnqueueNextForUser(userId: string) {
 
   await nextPrompt.interaction
     .editReply({
-      content: `Prompt **${nextPrompt.prompt}** added to the global queue. (current global queue length: ${promptQueue.length})`,
+      content: `Prompt **${
+        nextPrompt.prompt
+      }** added to the global queue. (current global queue length: ${promptQueue.length + 1})`,
     })
     .catch(e => void e);
 
@@ -98,6 +100,7 @@ async function startGenerationLoop() {
 
   while (promptQueue.length > 0) {
     const queuedPrompt = promptQueue.shift()!;
+    checkAndEnqueueNextForUser(queuedPrompt.userId);
 
     const prompt: PromptResult = {
       enqueuedAt: 0,
@@ -158,8 +161,6 @@ async function startGenerationLoop() {
     }
 
     await sendResult(prompt);
-
-    checkAndEnqueueNextForUser(prompt.userId);
   }
 
   container.logger.info("queue empty");
