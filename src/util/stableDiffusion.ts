@@ -47,15 +47,14 @@ export async function handleNewUserPrompt(interaction: RepliableInteraction, pro
     requestedAt: Date.now(),
   };
 
-  getUserQueue(userId).push(promptData);
-
   // initial reply will be edited later
   await interaction.reply({
     content: `Prompt **${prompt}** added to you personal queue. (current personal queue length: ${
       getUserQueue(userId).length
     })`,
-    ephemeral: true,
   });
+
+  getUserQueue(userId).push(promptData);
 
   await checkAndEnqueueNextForUser(userId);
 }
@@ -74,9 +73,11 @@ async function checkAndEnqueueNextForUser(userId: string) {
   nextPrompt.enqueuedAt = Date.now();
   promptQueue.push(nextPrompt);
 
-  await nextPrompt.interaction.editReply({
-    content: `Prompt **${nextPrompt.prompt}** added to the global queue. (current global queue length: ${promptQueue.length})`,
-  });
+  await nextPrompt.interaction
+    .editReply({
+      content: `Prompt **${nextPrompt.prompt}** added to the global queue. (current global queue length: ${promptQueue.length})`,
+    })
+    .catch(e => void e);
 
   if (!running) startGenerationLoop();
 }
