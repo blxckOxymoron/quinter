@@ -32,8 +32,8 @@ export type PromptInfo = Pick<
 
 export const isStableDiffusionSetUp = process.env.PATH_TO_FASTSDCPU !== undefined;
 
-const promptQuene: Prompt[] = [];
-const userPromptQuene = new Map<string, Prompt[]>();
+const promptQueue: Prompt[] = [];
+const userPromptQueue = new Map<string, Prompt[]>();
 
 let running = false;
 
@@ -54,26 +54,26 @@ export async function handleNewUserPrompt(interaction: RepliableInteraction, pro
     ephemeral: true,
   });
 
-  checkAndEnqueNextForUser(userId);
+  checkAndEnqueueNextForUser(userId);
 }
 
-function checkAndEnqueNextForUser(userId: string) {
-  const hasPromptInQuene = promptQuene.some(p => p.userId === userId);
-  if (hasPromptInQuene) return;
+function checkAndEnqueueNextForUser(userId: string) {
+  const hasPromptInQueue = promptQueue.some(p => p.userId === userId);
+  if (hasPromptInQueue) return;
 
-  const nextPrompt = userPromptQuene.get(userId)?.shift();
+  const nextPrompt = userPromptQueue.get(userId)?.shift();
   if (!nextPrompt) return;
 
   nextPrompt.enqueuedAt = Date.now();
-  promptQuene.push(nextPrompt);
+  promptQueue.push(nextPrompt);
   if (!running) startGenerationLoop();
 }
 
 function getUserQueue(userId: string) {
-  const queue = userPromptQuene.get(userId);
+  const queue = userPromptQueue.get(userId);
   if (!queue) {
-    userPromptQuene.set(userId, []);
-    return userPromptQuene.get(userId)!;
+    userPromptQueue.set(userId, []);
+    return userPromptQueue.get(userId)!;
   }
 
   return queue;
@@ -82,12 +82,12 @@ function getUserQueue(userId: string) {
 async function startGenerationLoop() {
   running = true;
 
-  while (promptQuene.length > 0) {
-    const quenedPrompt = promptQuene.shift()!;
+  while (promptQueue.length > 0) {
+    const queuedPrompt = promptQueue.shift()!;
 
     const prompt: PromptResult = {
       enqueuedAt: 0,
-      ...quenedPrompt,
+      ...queuedPrompt,
       resultImagePaths: [],
       generatingStartedAt: 0,
       finishedAt: 0,
@@ -102,10 +102,10 @@ async function startGenerationLoop() {
     container.logger.info(
       "generating image",
       prompt.prompt,
-      "quene",
-      promptQuene.length,
-      "user quene",
-      Array.from(userPromptQuene.values()).reduce((acc, val) => acc + val.length, 0)
+      "queue",
+      promptQueue.length,
+      "user queue",
+      Array.from(userPromptQueue.values()).reduce((acc, val) => acc + val.length, 0)
     );
 
     prompt.generatingStartedAt = Date.now();
@@ -149,6 +149,8 @@ async function startGenerationLoop() {
     await sendResult(prompt);
   }
 
+  container.logger.info("queue empty");
+
   running = false;
 }
 
@@ -168,7 +170,7 @@ async function sendResult(promptResult: PromptResult) {
     return;
   }
 
-  const timeInQuene = promptResult.generatingStartedAt - promptResult.enqueuedAt;
+  const timeInQueue = promptResult.generatingStartedAt - promptResult.enqueuedAt;
   const timeGenerating = promptResult.finishedAt - promptResult.generatingStartedAt;
 
   const embed = new EmbedBuilder()
@@ -181,7 +183,7 @@ async function sendResult(promptResult: PromptResult) {
     .addFields([
       {
         name: "time enqueued",
-        value: `${(timeInQuene / 1000).toFixed(2)}s`,
+        value: `${(timeInQueue / 1000).toFixed(2)}s`,
         inline: true,
       },
       {
