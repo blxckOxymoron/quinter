@@ -49,23 +49,35 @@ export async function handleNewUserPrompt(interaction: RepliableInteraction, pro
 
   getUserQueue(userId).push(promptData);
 
+  // initial reply will be edited later
   await interaction.reply({
-    content: `Prompt enqueued. You will be notified when it's your turn. (current queue length: ${promptQueue.length})\nonly one prompt per user will be queued at a time, the next one is queued when the previous one is finished.`,
+    content: `Prompt **${prompt}** added to you personal queue. (current personal queue length: ${
+      getUserQueue(userId).length
+    })`,
     ephemeral: true,
   });
 
-  checkAndEnqueueNextForUser(userId);
+  await checkAndEnqueueNextForUser(userId);
 }
 
-function checkAndEnqueueNextForUser(userId: string) {
+async function checkAndEnqueueNextForUser(userId: string) {
   const hasPromptInQueue = promptQueue.some(p => p.userId === userId);
   if (hasPromptInQueue) return;
 
+  const userQueue = getUserQueue(userId);
   const nextPrompt = userPromptQueue.get(userId)?.shift();
+
+  if (userQueue.length === 0) userPromptQueue.delete(userId);
+
   if (!nextPrompt) return;
 
   nextPrompt.enqueuedAt = Date.now();
   promptQueue.push(nextPrompt);
+
+  await nextPrompt.interaction.editReply({
+    content: `Prompt **${nextPrompt.prompt}** added to the global queue. (current global queue length: ${promptQueue.length})`,
+  });
+
   if (!running) startGenerationLoop();
 }
 
@@ -94,9 +106,8 @@ async function startGenerationLoop() {
       hadError: false,
     };
 
-    await prompt.interaction.followUp({
+    await prompt.interaction.editReply({
       content: `Started generating your image **${prompt.prompt}**...`,
-      ephemeral: true,
     });
 
     container.logger.info(
@@ -145,6 +156,8 @@ async function startGenerationLoop() {
     }
 
     await sendResult(prompt);
+
+    checkAndEnqueueNextForUser(prompt.userId);
   }
 
   container.logger.info("queue empty");
@@ -161,9 +174,8 @@ function getDirForResult(interaction: Interaction) {
 
 async function sendResult(promptResult: PromptResult) {
   if (promptResult.hadError) {
-    await promptResult.interaction.followUp({
+    await promptResult.interaction.editReply({
       content: "😖 Something went wrong while generating the image",
-      ephemeral: true,
     });
     return;
   }
