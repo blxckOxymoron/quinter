@@ -74,13 +74,9 @@ async function checkAndEnqueueNextForUser(userId: string) {
   nextPrompt.enqueuedAt = Date.now();
   promptQueue.push(nextPrompt);
 
-  await nextPrompt.interaction
-    .editReply({
-      content: `Prompt **${
-        nextPrompt.prompt
-      }** added to the global queue. (current global queue length: ${promptQueue.length + 1})`,
-    })
-    .catch(e => void e);
+  await nextPrompt.interaction.editReply({
+    content: `Prompt **${nextPrompt.prompt}** added to the global queue. (current global queue length: ${promptQueue.length})`,
+  });
 
   if (!running) startGenerationLoop();
 }
@@ -159,6 +155,10 @@ async function startGenerationLoop() {
       container.logger.error("no result images found");
       prompt.hadError = true;
     }
+
+    await prompt.interaction.editReply({
+      content: `Finished generating your image **${prompt.prompt}**`,
+    });
 
     await sendResult(prompt);
   }
