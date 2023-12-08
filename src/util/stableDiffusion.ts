@@ -50,7 +50,7 @@ export async function handleNewUserPrompt(interaction: RepliableInteraction, pro
   getUserQueue(userId).push(promptData);
 
   await interaction.reply({
-    content: "Prompt enqueued. You will be notified when it's your turn.",
+    content: `Prompt enqueued. You will be notified when it's your turn. (current queue length: ${promptQueue.length})\nonly one prompt per user will be queued at a time, the next one is queued when the previous one is finished.`,
     ephemeral: true,
   });
 
@@ -110,7 +110,7 @@ async function startGenerationLoop() {
 
     prompt.generatingStartedAt = Date.now();
 
-    const { stderr: sdError } = await exec(
+    await exec(
       `cd ${process.env.PATH_TO_FASTSDCPU} && source env/bin/activate && python3 src/app.py --use_openvino --prompt $PROMPT`,
       {
         timeout: 1000 * 60 * 5,
@@ -123,8 +123,6 @@ async function startGenerationLoop() {
     );
 
     prompt.finishedAt = Date.now();
-
-    if (sdError) container.logger.error("error in fastsdcpu");
 
     const interactionResultDir = getDirForResult(prompt.interaction);
     await fs.mkdir(interactionResultDir, { recursive: true });
@@ -178,7 +176,7 @@ async function sendResult(promptResult: PromptResult) {
       name: "Image Generated",
       iconURL: twemojiUrl("✨"),
     })
-    .setDescription(`#   ${promptResult.prompt}\n_ _`)
+    .setDescription(`#   ${promptResult.prompt}`)
     .setColor(QuinterColors.Green)
     .addFields([
       {
@@ -190,6 +188,10 @@ async function sendResult(promptResult: PromptResult) {
         name: "time generating",
         value: `${(timeGenerating / 1000).toFixed(2)}s`,
         inline: true,
+      },
+      {
+        name: "requested by",
+        value: `<@${promptResult.userId}>`,
       },
     ])
     .setURL(
