@@ -15,9 +15,10 @@ import { QuinterColors } from "../util/colors";
 import { decodeFromEmbedURL, encodeInURL } from "../util/encodeInURL";
 import { Rating } from "../interaction-handlers/addRatingButton";
 
-type RatingEvent = {
+export type RatingEvent = {
   title: string;
   description: string;
+  totalRating: number;
   rating: number;
   votes: number;
 };
@@ -51,13 +52,27 @@ export class RatingCommand extends Command {
     return (rating * votes + 5) / (votes + 2);
   }
 
-  static createUpdatedEmbed(embed: Embed, rating: Rating) {
-    const ratingEvent = decodeFromEmbedURL<RatingEvent>(embed);
+  static createUpdatedEmbed(
+    embedOrRatingEvent: Embed | RatingEvent,
+    rating: Rating,
+    removed: boolean = false
+  ) {
+    const ratingEvent =
+      "votes" in embedOrRatingEvent
+        ? embedOrRatingEvent
+        : decodeFromEmbedURL<RatingEvent>(embedOrRatingEvent);
+
     if (!ratingEvent) throw Error("recived embed without rating event");
 
-    ratingEvent.rating =
-      (ratingEvent.rating * ratingEvent.votes + rating.rating) / (ratingEvent.votes + 1);
-    ratingEvent.votes++;
+    if (removed) {
+      ratingEvent.totalRating -= rating.rating;
+      ratingEvent.votes--;
+    } else {
+      ratingEvent.totalRating += rating.rating;
+      ratingEvent.votes++;
+    }
+
+    ratingEvent.rating = ratingEvent.totalRating / Math.max(ratingEvent.votes, 1); // prevent division by 0
 
     return RatingCommand.createRatingOverviewEmbed(ratingEvent);
   }
@@ -109,6 +124,7 @@ export class RatingCommand extends Command {
           title,
           description,
           rating: 0,
+          totalRating: 0,
           votes: 0,
         }),
       ],

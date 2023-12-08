@@ -37,7 +37,7 @@ export class ImageCommand extends Command {
     );
   }
 
-  static createMessageFromImages(images: PhotosWithTotalResults, query: string) {
+  static createImageResponse(images: PhotosWithTotalResults, query: string) {
     const attachemnts = images.photos.map(photo =>
       new AttachmentBuilder(photo.src.medium).setDescription(
         photo.alt + ` - by ${photo.photographer} on Pexels`
@@ -115,6 +115,6 @@ export class ImageCommand extends Command {
       return;
     }
 
-    interaction.reply(ImageCommand.createMessageFromImages(images, query));
+    interaction.reply(ImageCommand.createImageResponse(images, query));
   }
 }

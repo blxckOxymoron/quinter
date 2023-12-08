@@ -54,7 +54,7 @@ export class AddReminderButtonHandler extends InteractionHandler {
       return;
     }
 
-    const newEmbed = ImageCommand.createMessageFromImages(nextImages, imageInfo.query);
+    const newEmbed = ImageCommand.createImageResponse(nextImages, imageInfo.query);
 
     await interaction.update(newEmbed);
   }

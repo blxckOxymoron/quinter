@@ -9,15 +9,19 @@ import {
   ModalActionRowComponentBuilder,
   EmbedBuilder,
   User,
+  BaseMessageOptions,
+  ButtonBuilder,
+  ButtonStyle,
 } from "discord.js";
 import { twemojiUrl } from "../util/twemoji";
 import { QuinterColors } from "../util/colors";
-import { encodeInURL } from "../util/encodeInURL";
+import { decodeFromEmbedURL, encodeInURL } from "../util/encodeInURL";
 import { RatingCommand } from "../commands/raiting";
 
 export type Rating = {
   review: string;
   rating: number;
+  userId: string;
 };
 
 @ApplyOptions<InteractionHandler.Options>({
@@ -55,8 +59,8 @@ export class AddRatingButtonHandler extends InteractionHandler {
     return modal;
   }
 
-  static createRatingEmbed(author: User, r: Rating) {
-    return new EmbedBuilder()
+  static createRatingResponse(author: User, r: Rating) {
+    const embed = new EmbedBuilder()
       .setAuthor({
         name: "Rating",
         iconURL: twemojiUrl("⭐"),
@@ -79,7 +83,17 @@ export class AddRatingButtonHandler extends InteractionHandler {
         `https://ratingstars.azurewebsites.net/stars?space=10&count=5&scale=0.3&rate=${r.rating}`
       )
       .setTimestamp()
-      .setURL(encodeInURL(r));
+      .setURL(encodeInURL<Rating>(r));
+
+    const deleteRatingButton = new ButtonBuilder()
+      .setCustomId("delete_rating")
+      .setLabel("Delete Rating")
+      .setStyle(ButtonStyle.Danger);
+
+    return {
+      embeds: [embed],
+      components: [new ActionRowBuilder<ButtonBuilder>().addComponents(deleteRatingButton)],
+    } satisfies BaseMessageOptions;
   }
 
   public async run(interaction: ButtonInteraction) {
@@ -93,10 +107,10 @@ export class AddRatingButtonHandler extends InteractionHandler {
       const embed = msg.embeds[0];
       if (!embed) return false;
 
-      const author = embed.fields.find(field => field.name === "Author")?.value;
-      if (!author) return false;
+      const rating = decodeFromEmbedURL<Rating>(embed);
+      if (!rating) return false;
 
-      return author === interaction.user.toString();
+      return rating.userId === interaction.user.id;
     });
 
     if (preveousVote) {
@@ -128,14 +142,15 @@ export class AddRatingButtonHandler extends InteractionHandler {
 
     const roundedRating = Math.round(ratingNumberValue * 2) / 2;
 
-    const rating = {
+    const rating: Rating = {
       rating: roundedRating,
+      userId: interaction.user.id,
       review: modalInteraction.fields.getTextInputValue("rating_reveiw"),
     };
 
-    const reviewEmbed = AddRatingButtonHandler.createRatingEmbed(interaction.user, rating);
+    const reviewResponse = AddRatingButtonHandler.createRatingResponse(interaction.user, rating);
 
-    const reviewMessage = await thread.send({ embeds: [reviewEmbed] });
+    const reviewMessage = await thread.send(reviewResponse);
 
     const starterMessage = await thread.fetchStarterMessage();
     if (!starterMessage) throw Error("recived thread without starter message");

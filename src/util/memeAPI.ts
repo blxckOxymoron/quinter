@@ -20,7 +20,6 @@ export async function getMeme(subreddit: string): Promise<Meme | undefined> {
   let tries = 0;
 
   do {
-    container.logger.info(subreddit);
     const response = await fetch(`https://meme-api.com/gimme/${subreddit}`);
     json = await response.json();
 
