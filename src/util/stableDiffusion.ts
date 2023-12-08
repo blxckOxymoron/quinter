@@ -109,6 +109,7 @@ async function startGenerationLoop() {
           ...process.env,
           PROMPT: promptResult.prompt,
         },
+        shell: "/bin/bash",
       }
     );
 
