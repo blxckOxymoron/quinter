@@ -50,11 +50,12 @@ export async function handleNewUserPrompt(interaction: RepliableInteraction, pro
   // initial reply will be edited later
   await interaction.reply({
     content: `Prompt **${prompt}** added to you personal queue. (current personal queue length: ${
-      getUserQueue(userId).length
+      userPromptQueue.get(userId)?.length ?? 0
     })`,
+    ephemeral: true,
   });
 
-  getUserQueue(userId).push(promptData);
+  initUserQueue(userId).push(promptData);
 
   await checkAndEnqueueNextForUser(userId);
 }
@@ -63,12 +64,12 @@ async function checkAndEnqueueNextForUser(userId: string) {
   const hasPromptInQueue = promptQueue.some(p => p.userId === userId);
   if (hasPromptInQueue) return;
 
-  const userQueue = getUserQueue(userId);
   const nextPrompt = userPromptQueue.get(userId)?.shift();
 
-  if (userQueue.length === 0) userPromptQueue.delete(userId);
-
-  if (!nextPrompt) return;
+  if (!nextPrompt) {
+    userPromptQueue.delete(userId);
+    return;
+  }
 
   nextPrompt.enqueuedAt = Date.now();
   promptQueue.push(nextPrompt);
@@ -82,7 +83,7 @@ async function checkAndEnqueueNextForUser(userId: string) {
   if (!running) startGenerationLoop();
 }
 
-function getUserQueue(userId: string) {
+function initUserQueue(userId: string) {
   const queue = userPromptQueue.get(userId);
   if (!queue) {
     userPromptQueue.set(userId, []);
