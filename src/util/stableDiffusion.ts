@@ -111,7 +111,7 @@ async function startGenerationLoop() {
     prompt.generatingStartedAt = Date.now();
 
     await exec(
-      `cd ${process.env.PATH_TO_FASTSDCPU} && source env/bin/activate && python3 src/app.py --use_openvino --prompt $PROMPT`,
+      `cd ${process.env.PATH_TO_FASTSDCPU} && source env/bin/activate && python3 src/app.py --use_openvino --prompt "$PROMPT"`,
       {
         timeout: 1000 * 60 * 5,
         env: {
