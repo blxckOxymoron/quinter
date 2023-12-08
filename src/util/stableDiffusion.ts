@@ -118,6 +118,7 @@ async function startGenerationLoop() {
     if (sdError) container.logger.error("error in fastsdcpu", sdError);
 
     const interactionResultDir = getDirForResult(promptResult.interaction);
+    await fs.mkdir(interactionResultDir, { recursive: true });
 
     promptResult.resultImagePaths = [];
 
@@ -125,7 +126,7 @@ async function startGenerationLoop() {
       withFileTypes: true,
     })) {
       // file starts with uuid4 -> 35 chars
-      const newPath = path.join(interactionResultDir, "result" + file.name.substring(35));
+      const newPath = path.join(interactionResultDir, "result" + file.name.substring(36));
       await fs.rename(path.join(process.env.PATH_TO_FASTSDCPU + "results", file.name), newPath);
 
       if (file.name.endsWith(".png"))
