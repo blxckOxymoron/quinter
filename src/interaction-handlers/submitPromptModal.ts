@@ -24,7 +24,7 @@ export class SubmitPromptModalHandler extends InteractionHandler {
       .setLabel("Prompt")
       .setMaxLength(100)
       .setPlaceholder(placeholder)
-      .setStyle(TextInputStyle.Paragraph);
+      .setStyle(TextInputStyle.Short);
 
     return new ModalBuilder()
       .setTitle("Submit a prompt")
