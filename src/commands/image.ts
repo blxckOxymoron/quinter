@@ -14,6 +14,7 @@ import { twemojiUrl } from "../util/twemoji";
 import { QuinterColors } from "../util/colors";
 import { PhotosWithTotalResults } from "pexels";
 import { encodeInURL } from "../util/encodeInURL";
+import { isStableDiffusionSetUp } from "../util/stableDiffusion";
 
 export type ImageInfo = Pick<PhotosWithTotalResults, "per_page" | "page" | "total_results"> & {
   query: string;
@@ -90,11 +91,22 @@ export class ImageCommand extends Command {
       .setEmoji("⬅️")
       .setDisabled(images.page === 1);
 
+    const aiButton = new ButtonBuilder()
+      .setCustomId("image_ai")
+      .setLabel("Generate AI Image")
+      .setStyle(ButtonStyle.Secondary)
+      .setEmoji("✨")
+      .setDisabled(!isStableDiffusionSetUp);
+
     return {
       embeds: [embed],
       files: attachemnts,
       components: [
-        new ActionRowBuilder<ButtonBuilder>().addComponents([previousPageButton, nextPageButton]),
+        new ActionRowBuilder<ButtonBuilder>().addComponents([
+          previousPageButton,
+          nextPageButton,
+          aiButton,
+        ]),
       ],
     } satisfies BaseMessageOptions;
   }

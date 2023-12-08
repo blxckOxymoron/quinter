@@ -1,7 +1,8 @@
 import { ApplyOptions } from "@sapphire/decorators";
 import { ChatInputCommand, Command } from "@sapphire/framework";
 import { ChatInputCommandInteraction } from "discord.js";
-import { SubmitPromptModal } from "../interaction-handlers/submitPromptModal";
+import { SubmitPromptModalHandler } from "../interaction-handlers/submitPromptModal";
+import { isStableDiffusionSetUp } from "../util/stableDiffusion";
 
 @ApplyOptions<Command.Options>({
   name: "imagine",
@@ -19,6 +20,15 @@ export class ImagineCommand extends Command {
     interaction: ChatInputCommandInteraction,
     _context: ChatInputCommand.RunContext
   ) {
-    await interaction.showModal(SubmitPromptModal.createModal());
+    if (!isStableDiffusionSetUp) {
+      await interaction.reply({
+        content: "Stable Diffusion is not set up in this environment, please try again later",
+        ephemeral: true,
+      });
+
+      return;
+    }
+
+    await interaction.showModal(SubmitPromptModalHandler.createModal());
   }
 }

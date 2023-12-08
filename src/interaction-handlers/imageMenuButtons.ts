@@ -4,13 +4,15 @@ import { type ButtonInteraction } from "discord.js";
 import { decodeFromEmbedURL } from "../util/encodeInURL";
 import { ImageCommand, ImageInfo } from "../commands/image";
 import { searchForImage } from "../util/imageAPI";
+import { isStableDiffusionSetUp } from "../util/stableDiffusion";
+import { SubmitPromptModalHandler } from "./submitPromptModal";
 
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button,
 })
-export class AddReminderButtonHandler extends InteractionHandler {
+export class ImageMenuButtonsHandler extends InteractionHandler {
   public override parse(interaction: ButtonInteraction) {
-    return ["images_next_page", "image_previous_page"].includes(interaction.customId)
+    return ["images_next_page", "image_previous_page", "image_ai"].includes(interaction.customId)
       ? this.some()
       : this.none();
   }
@@ -21,6 +23,20 @@ export class AddReminderButtonHandler extends InteractionHandler {
 
     const imageInfo = decodeFromEmbedURL<ImageInfo>(embed);
     if (!imageInfo) return;
+
+    if (interaction.customId === "image_ai") {
+      if (!isStableDiffusionSetUp) {
+        await interaction.reply({
+          content: "Stable Diffusion is not set up in this environment, please try again later",
+          ephemeral: true,
+        });
+        return;
+      }
+
+      await interaction.showModal(SubmitPromptModalHandler.createModal(imageInfo.query));
+
+      return;
+    }
 
     let nextPage = imageInfo.page;
 

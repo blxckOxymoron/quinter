@@ -13,7 +13,7 @@ import { handleNewUserPrompt } from "../util/stableDiffusion";
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.ModalSubmit,
 })
-export class SubmitPromptModal extends InteractionHandler {
+export class SubmitPromptModalHandler extends InteractionHandler {
   public override parse(interaction: ModalSubmitInteraction) {
     return interaction.customId === "sd_prompt_modal" ? this.some() : this.none();
   }
