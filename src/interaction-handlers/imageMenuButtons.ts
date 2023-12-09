@@ -33,7 +33,9 @@ export class ImageMenuButtonsHandler extends InteractionHandler {
         return;
       }
 
-      await interaction.showModal(SubmitPromptModalHandler.createModal(imageInfo.query));
+      await interaction.showModal(
+        SubmitPromptModalHandler.createModal(`stock image of "${imageInfo.query}"`)
+      );
 
       return;
     }
