@@ -4,7 +4,7 @@ import { EmbedBuilder, Events, Message, ThreadChannel, User } from "discord.js";
 import { decodeFromEmbedURL } from "../util/encodeInURL";
 import { QuinterColors } from "../util/colors";
 import { twemojiUrl } from "../util/twemoji";
-import { GuessTheNumberCommand, GuessTheNumberGame } from "../commands/guessTheNumber";
+import { NumberGameCommand, GuessTheNumberGame } from "../commands/numbergame";
 
 @ApplyOptions<Listener.Options>({
   event: Events.MessageCreate,
@@ -69,9 +69,7 @@ export class GuessTheNumberListener extends Listener<Events.MessageCreate> {
     });
 
     await starterMessage.edit({
-      embeds: [
-        GuessTheNumberCommand.createGameOverviewEmbed(GuessTheNumberCommand.getNewNumber(game)),
-      ],
+      embeds: [NumberGameCommand.createGameOverviewEmbed(NumberGameCommand.getNewNumber(game))],
     });
   }
 }

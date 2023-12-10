@@ -1,4 +1,11 @@
-import { AttachmentBuilder, EmbedBuilder, Interaction, RepliableInteraction } from "discord.js";
+import {
+  AttachmentBuilder,
+  EmbedBuilder,
+  Interaction,
+  RepliableInteraction,
+  TimestampStyles,
+  time,
+} from "discord.js";
 import { exec as execCallback } from "child_process";
 import path from "path";
 import fs from "fs/promises";
@@ -32,10 +39,16 @@ export type PromptInfo = Pick<
 
 export const isStableDiffusionSetUp = process.env.PATH_TO_FASTSDCPU !== undefined;
 
+const approxTimeToGenerate = 23; // 23 seconds
+
 const promptQueue: Prompt[] = [];
 const userPromptQueue = new Map<string, Prompt[]>();
 
 let running = false;
+
+function now() {
+  return Math.round(Date.now() / 1000);
+}
 
 export async function handleNewUserPrompt(interaction: RepliableInteraction, prompt: string) {
   const userId = interaction.user.id;
@@ -51,13 +64,26 @@ export async function handleNewUserPrompt(interaction: RepliableInteraction, pro
   await interaction.reply({
     content: `Prompt **${prompt}** added to you personal queue. (current personal queue length: ${
       (userPromptQueue.get(userId)?.length ?? 0) + 1
-    })`,
+    }, approx. done ${time(
+      now() + approxTimeInPersonalQueue(userId) + approxTimeToGenerate,
+      TimestampStyles.RelativeTime
+    )})`,
     ephemeral: true,
   });
 
   initUserQueue(userId).push(promptData);
 
   await checkAndEnqueueNextForUser(userId);
+}
+
+function approxTimeInGlobalQueue() {
+  const timeInQueue = promptQueue.length * approxTimeToGenerate;
+  return timeInQueue;
+}
+
+function approxTimeInPersonalQueue(userId: string) {
+  const timeInQueue = (userPromptQueue.get(userId)?.length ?? 0) * approxTimeInGlobalQueue();
+  return timeInQueue;
 }
 
 async function checkAndEnqueueNextForUser(userId: string) {
@@ -75,7 +101,14 @@ async function checkAndEnqueueNextForUser(userId: string) {
   promptQueue.push(nextPrompt);
 
   await nextPrompt.interaction.editReply({
-    content: `Prompt **${nextPrompt.prompt}** added to the global queue. (current global queue length: ${promptQueue.length})`,
+    content: `Prompt **${
+      nextPrompt.prompt
+    }** added to the global queue. (current global queue length: ${
+      promptQueue.length
+    }, approx. done ${time(
+      now() + approxTimeInGlobalQueue() + approxTimeToGenerate,
+      TimestampStyles.RelativeTime
+    )})`,
   });
 
   if (!running) startGenerationLoop();
@@ -108,7 +141,10 @@ async function startGenerationLoop() {
     };
 
     await prompt.interaction.editReply({
-      content: `Started generating your image **${prompt.prompt}**...`,
+      content: `Started generating your image **${prompt.prompt}**... (approx. done ${time(
+        now() + approxTimeToGenerate,
+        TimestampStyles.RelativeTime
+      )})`,
     });
 
     container.logger.info(

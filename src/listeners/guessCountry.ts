@@ -2,7 +2,7 @@ import { ApplyOptions } from "@sapphire/decorators";
 import { Listener } from "@sapphire/framework";
 import { EmbedBuilder, Events, Message, ThreadChannel, User } from "discord.js";
 import { decodeFromEmbedURL } from "../util/encodeInURL";
-import { FlagCommand, FlagGame } from "../commands/flags";
+import { FlagGameCommand, FlagGame } from "../commands/flaggame";
 import { QuinterColors } from "../util/colors";
 import { twemojiUrl } from "../util/twemoji";
 import { getRandomCountry } from "../util/countryCodes";
@@ -69,7 +69,7 @@ export class GuessCountryListener extends Listener<Events.MessageCreate> {
     });
 
     await starterMessage.edit({
-      embeds: [FlagCommand.createGameOverviewEmbed(getRandomCountry())],
+      embeds: [FlagGameCommand.createGameOverviewEmbed(getRandomCountry())],
     });
   }
 }

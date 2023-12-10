@@ -24,7 +24,7 @@ export type RatingEvent = {
 };
 
 @ApplyOptions<Command.Options>({
-  name: "createrating",
+  name: "rating",
   description: "create a new item to add ratings to",
   enabled: true,
   runIn: ChannelType.GuildText,

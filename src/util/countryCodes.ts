@@ -1,5 +1,5 @@
 import { getAlpha2Codes, getName } from "i18n-iso-countries";
-import { FlagGame } from "../commands/flags";
+import { FlagGame } from "../commands/flaggame";
 import { TextBasedChannel } from "discord.js";
 
 const allowedLangs = ["de", "en"];

@@ -17,12 +17,12 @@ export type FlagGame = {
 };
 
 @ApplyOptions<Command.Options>({
-  name: "createflaggame",
+  name: "flaggame",
   description: "create a new game of guessing flags",
   enabled: true,
   runIn: ChannelType.GuildText,
 })
-export class FlagCommand extends Command {
+export class FlagGameCommand extends Command {
   public override registerApplicationCommands(registry: Command.Registry) {
     registry.registerChatInputCommand(builder =>
       builder.setDMPermission(false).setName(this.name).setDescription(this.description)
@@ -48,7 +48,7 @@ export class FlagCommand extends Command {
     _context: ChatInputCommand.RunContext
   ) {
     const ratingOverview = await interaction.reply({
-      embeds: [FlagCommand.createGameOverviewEmbed(getRandomCountry())],
+      embeds: [FlagGameCommand.createGameOverviewEmbed(getRandomCountry())],
       fetchReply: true,
     });
 

@@ -18,12 +18,12 @@ export type GuessTheNumberGame = {
 };
 
 @ApplyOptions<Command.Options>({
-  name: "createguessthenumber",
+  name: "numbergame",
   description: "create a new game of guessing the number",
   enabled: true,
   runIn: ChannelType.GuildText,
 })
-export class GuessTheNumberCommand extends Command {
+export class NumberGameCommand extends Command {
   public override registerApplicationCommands(registry: Command.Registry) {
     registry.registerChatInputCommand(builder =>
       builder
@@ -74,10 +74,10 @@ export class GuessTheNumberCommand extends Command {
     const max = interaction.options.getNumber("max", false);
     const showHigherLower = interaction.options.getBoolean("show_higher_lower", false);
 
-    const game = GuessTheNumberCommand.getNewNumber({ max, showHigherLower });
+    const game = NumberGameCommand.getNewNumber({ max, showHigherLower });
 
     const ratingOverview = await interaction.reply({
-      embeds: [GuessTheNumberCommand.createGameOverviewEmbed(game)],
+      embeds: [NumberGameCommand.createGameOverviewEmbed(game)],
       fetchReply: true,
     });
 
