@@ -65,7 +65,7 @@ export async function handleNewUserPrompt(interaction: RepliableInteraction, pro
     content: `Prompt **${prompt}** added to you personal queue. (current personal queue length: ${
       (userPromptQueue.get(userId)?.length ?? 0) + 1
     }, approx. done ${time(
-      now() + approxTimeInPersonalQueue(userId) + approxTimeToGenerate,
+      now() + approxTimeInPersonalQueue(userId) + approxTimeInGlobalQueue() + approxTimeToGenerate,
       TimestampStyles.RelativeTime
     )})`,
     ephemeral: true,
