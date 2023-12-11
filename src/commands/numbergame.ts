@@ -71,6 +71,11 @@ export class NumberGameCommand extends Command {
     interaction: ChatInputCommandInteraction,
     _context: ChatInputCommand.RunContext
   ) {
+    return await interaction.reply({
+      content: `<#1183520601827196959>`,
+      ephemeral: true,
+    });
+
     const max = interaction.options.getNumber("max", false);
     const showHigherLower = interaction.options.getBoolean("show_higher_lower", false);
 

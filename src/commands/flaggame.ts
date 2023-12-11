@@ -47,6 +47,11 @@ export class FlagGameCommand extends Command {
     interaction: ChatInputCommandInteraction,
     _context: ChatInputCommand.RunContext
   ) {
+    return await interaction.reply({
+      content: `<#1183520601827196959>`,
+      ephemeral: true,
+    });
+
     const ratingOverview = await interaction.reply({
       embeds: [FlagGameCommand.createGameOverviewEmbed(getRandomCountry())],
       fetchReply: true,

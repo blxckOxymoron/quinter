@@ -8,6 +8,7 @@ import {
   ChatInputCommandInteraction,
   Embed,
   EmbedBuilder,
+  PermissionFlagsBits,
   ThreadAutoArchiveDuration,
 } from "discord.js";
 import { twemojiUrl } from "../util/twemoji";
@@ -107,6 +108,11 @@ export class RatingCommand extends Command {
     interaction: ChatInputCommandInteraction,
     _context: ChatInputCommand.RunContext
   ) {
+    return await interaction.reply({
+      content: `<#1183519296555593828>`,
+      ephemeral: true,
+    });
+
     const title = interaction.options.getString("title", true);
     const description = interaction.options.getString("description", true);
 
