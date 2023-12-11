@@ -31,6 +31,7 @@ export class AddRatingButtonHandler extends InteractionHandler {
         content: "You can only delete your own ratings!",
         ephemeral: true,
       });
+      return;
     }
 
     await interaction.message.delete();
