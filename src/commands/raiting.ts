@@ -8,7 +8,6 @@ import {
   ChatInputCommandInteraction,
   Embed,
   EmbedBuilder,
-  PermissionFlagsBits,
   ThreadAutoArchiveDuration,
 } from "discord.js";
 import { twemojiUrl } from "../util/twemoji";
