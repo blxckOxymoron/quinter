@@ -39,7 +39,7 @@ export type PromptInfo = Pick<
 
 export const isStableDiffusionSetUp = process.env.PATH_TO_FASTSDCPU !== undefined;
 
-const approxTimeToGenerate = 23; // 23 seconds
+let approxTimeToGenerate = 23; // 23 seconds
 
 const promptQueue: Prompt[] = [];
 const userPromptQueue = new Map<string, Prompt[]>();
@@ -170,8 +170,6 @@ async function startGenerationLoop() {
       }
     );
 
-    prompt.finishedAt = Date.now();
-
     const interactionResultDir = getDirForResult(prompt.interaction);
     await fs.mkdir(interactionResultDir, { recursive: true });
 
@@ -191,6 +189,11 @@ async function startGenerationLoop() {
       container.logger.error("no result images found");
       prompt.hadError = true;
     }
+
+    prompt.finishedAt = Date.now();
+    const secondsToGenerate = (prompt.finishedAt - prompt.generatingStartedAt) / 1000;
+
+    approxTimeToGenerate = Math.round((approxTimeToGenerate * 2 + secondsToGenerate) / 3);
 
     await prompt.interaction.editReply({
       content: `Finished generating your image **${prompt.prompt}**`,
