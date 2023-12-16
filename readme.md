@@ -10,7 +10,7 @@ Make sure to set up proper permissions, eg. disabling the /flaggame, /numbergame
 
 ## Images & AI Images
 
-- Use the /image command to view stock images
+- Use the /images command to view stock images
 - Use the /imagine to create an AI image
   - this is done using stable diffusion turbo
 
