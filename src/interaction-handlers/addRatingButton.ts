@@ -16,7 +16,7 @@ import {
 import { twemojiUrl } from "../util/twemoji";
 import { QuinterColors } from "../util/colors";
 import { decodeFromEmbedURL, encodeInURL } from "../util/encodeInURL";
-import { RatingCommand } from "../commands/raiting";
+import { RatingCommand } from "../commands/rating";
 
 export type Rating = {
   review: string;

@@ -2,7 +2,7 @@ import { ApplyOptions } from "@sapphire/decorators";
 import { Listener } from "@sapphire/framework";
 import { Events, Message } from "discord.js";
 import { decodeFromEmbedURL } from "../util/encodeInURL";
-import { RatingCommand, RatingEvent } from "../commands/raiting";
+import { RatingCommand, RatingEvent } from "../commands/rating";
 import { Rating } from "../interaction-handlers/addRatingButton";
 
 @ApplyOptions<Listener.Options>({

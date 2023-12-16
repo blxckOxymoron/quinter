@@ -27,10 +27,11 @@ export class AddRatingButtonHandler extends InteractionHandler {
     // confirmed that the deleted embed is a rating embed
 
     if (interaction.user.id !== ratingData.userId) {
-      interaction.reply({
+      await interaction.reply({
         content: "You can only delete your own ratings!",
         ephemeral: true,
       });
+      return;
     }
 
     await interaction.message.delete();
