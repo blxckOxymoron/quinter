@@ -123,9 +123,13 @@ export class AddRatingButtonHandler extends InteractionHandler {
 
     await interaction.showModal(AddRatingButtonHandler.createModal());
 
-    const modalInteraction = await interaction.awaitModalSubmit({
-      time: 1000 * 60 * 5,
-    });
+    const modalInteraction = await interaction
+      .awaitModalSubmit({
+        time: 1000 * 60 * 5,
+      })
+      .catch(e => void e);
+
+    if (!modalInteraction) return;
 
     const ratingInput = modalInteraction.fields.getTextInputValue("rating").replaceAll(",", ".");
     const ratingNumberValue = parseFloat(ratingInput);
