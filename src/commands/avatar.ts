@@ -32,7 +32,7 @@ export class AvatarCommand extends Command {
         .setName(this.name)
         .setDescription(this.description)
         .addUserOption(opt =>
-          opt.setName("user").setDescription("The user to get the avatar of").setRequired(true)
+          opt.setName("user").setDescription("The user to get the avatar of").setRequired(false)
         )
     );
   }
@@ -85,7 +85,7 @@ export class AvatarCommand extends Command {
     interaction: ChatInputCommandInteraction,
     _context: ChatInputCommand.RunContext
   ) {
-    const user = interaction.options.getUser("user", true);
+    const user = interaction.options.getUser("user") ?? interaction.user;
 
     await interaction.reply(AvatarCommand.createAvatarResponse(user));
   }
