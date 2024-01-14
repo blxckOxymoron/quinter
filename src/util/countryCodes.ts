@@ -19,7 +19,7 @@ export function getRandomCountry(): FlagGame {
   };
 }
 
-export function getAllCountryCodes(): FlagGame[] {
+export function getAllCountryCodes(): Pick<FlagGame, "countryCode" | "countryNames">[] {
   return Object.keys(getAlpha2Codes()).map(key => {
     return {
       countryCode: key,

@@ -1,6 +1,6 @@
 import { ApplyOptions } from "@sapphire/decorators";
 import { Listener } from "@sapphire/framework";
-import { EmbedBuilder, Events, Message, ThreadChannel, User } from "discord.js";
+import { EmbedBuilder, Events, Message, User } from "discord.js";
 import { decodeFromEmbedURL } from "../util/encodeInURL";
 import { QuinterColors } from "../util/colors";
 import { twemojiUrl } from "../util/twemoji";
@@ -10,7 +10,7 @@ import { NumberGameCommand, GuessTheNumberGame } from "../commands/numbergame";
   event: Events.MessageCreate,
 })
 export class GuessTheNumberListener extends Listener<Events.MessageCreate> {
-  static createCorrectGuessEmbed(game: GuessTheNumberGame, user: User, channel: ThreadChannel) {
+  static createCorrectGuessEmbed(game: GuessTheNumberGame, user: User) {
     return new EmbedBuilder()
       .setColor(QuinterColors.Green)
       .setAuthor({
@@ -20,10 +20,7 @@ export class GuessTheNumberListener extends Listener<Events.MessageCreate> {
       .setDescription(
         `## ${user} guessed correctly!\n ## The correct number was ${game.correctNumber}\n\n A new number has been picked, type your guess in the thread!`
       )
-      .setTimestamp()
-      .setFooter({
-        text: `${channel.messageCount ?? 2 - 1} total guesses`,
-      });
+      .setTimestamp();
   }
 
   override async run(message: Message) {
@@ -60,16 +57,22 @@ export class GuessTheNumberListener extends Listener<Events.MessageCreate> {
       return;
     }
 
-    await message.channel.bulkDelete(50);
+    await message.react("✅");
 
     await message.channel.send({
-      embeds: [
-        GuessTheNumberListener.createCorrectGuessEmbed(game, message.author, message.channel),
-      ],
+      embeds: [GuessTheNumberListener.createCorrectGuessEmbed(game, message.author)],
     });
 
+    const overviewEmbed = NumberGameCommand.createGameOverviewEmbed(
+      NumberGameCommand.getNewNumber(game)
+    );
+
     await starterMessage.edit({
-      embeds: [NumberGameCommand.createGameOverviewEmbed(NumberGameCommand.getNewNumber(game))],
+      embeds: [overviewEmbed],
+    });
+
+    await message.channel.send({
+      embeds: [overviewEmbed],
     });
   }
 }

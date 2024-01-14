@@ -1,6 +1,6 @@
 import { ApplyOptions } from "@sapphire/decorators";
 import { Listener } from "@sapphire/framework";
-import { EmbedBuilder, Events, Message, ThreadChannel, User } from "discord.js";
+import { EmbedBuilder, Events, Message, User } from "discord.js";
 import { decodeFromEmbedURL } from "../util/encodeInURL";
 import { FlagGameCommand, FlagGame } from "../commands/flaggame";
 import { QuinterColors } from "../util/colors";
@@ -11,12 +11,7 @@ import { getRandomCountry } from "../util/countryCodes";
   event: Events.MessageCreate,
 })
 export class GuessCountryListener extends Listener<Events.MessageCreate> {
-  static createCorrectGuessEmbed(
-    game: FlagGame,
-    guess: string,
-    user: User,
-    channel: ThreadChannel
-  ) {
+  static createCorrectGuessEmbed(game: FlagGame, guess: string, user: User) {
     return new EmbedBuilder()
       .setColor(QuinterColors.Green)
       .setAuthor({
@@ -26,10 +21,7 @@ export class GuessCountryListener extends Listener<Events.MessageCreate> {
       .setDescription(
         `## ${user} guessed correctly!\n ## :flag_${game.countryCode.toLowerCase()}: ${guess}\n\nThe next flag is shown in the thread message`
       )
-      .setTimestamp()
-      .setFooter({
-        text: `${channel.messageCount ?? 2 - 1} total guesses`,
-      });
+      .setTimestamp();
   }
 
   override async run(message: Message) {
@@ -55,21 +47,20 @@ export class GuessCountryListener extends Listener<Events.MessageCreate> {
       return;
     }
 
-    await message.channel.bulkDelete(50);
+    await message.react("✅");
 
     await message.channel.send({
-      embeds: [
-        GuessCountryListener.createCorrectGuessEmbed(
-          game,
-          correctName,
-          message.author,
-          message.channel
-        ),
-      ],
+      embeds: [GuessCountryListener.createCorrectGuessEmbed(game, correctName, message.author)],
     });
 
+    const overviewEmbed = FlagGameCommand.createGameOverviewEmbed(getRandomCountry());
+
     await starterMessage.edit({
-      embeds: [FlagGameCommand.createGameOverviewEmbed(getRandomCountry())],
+      embeds: [overviewEmbed],
+    });
+
+    await message.channel.send({
+      embeds: [overviewEmbed],
     });
   }
 }

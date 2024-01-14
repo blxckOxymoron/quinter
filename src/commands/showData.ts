@@ -21,7 +21,7 @@ export class FlagCommand extends Command {
     const embed = interaction.targetMessage.embeds[0];
 
     if (!embed) {
-      interaction.reply({
+      await interaction.reply({
         content: `No embed found, this command only works embeds sent by ${interaction.client.user}`,
         ephemeral: true,
       });
@@ -31,7 +31,7 @@ export class FlagCommand extends Command {
     const encodedData = decodeFromEmbedURL(embed);
 
     if (!encodedData) {
-      interaction.reply({
+      await interaction.reply({
         content:
           "No data found in embed" +
           (interaction.targetMessage.author.id !== interaction.client.user.id
