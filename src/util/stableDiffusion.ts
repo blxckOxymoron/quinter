@@ -159,7 +159,7 @@ async function startGenerationLoop() {
     prompt.generatingStartedAt = Date.now();
 
     await exec(
-      `cd ${process.env.PATH_TO_FASTSDCPU} && source env/bin/activate && python3 src/app.py --use_lcm_lora --prompt "$PROMPT"`,
+      `cd ${process.env.PATH_TO_FASTSDCPU} && source env/bin/activate && python3 src/app.py --use_lcm_lora --inference_steps 4 --prompt "$PROMPT"`,
       {
         timeout: 1000 * 60 * 5,
         env: {
